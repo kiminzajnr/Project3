@@ -1,6 +1,6 @@
 #### Give your Application Auto Deploy SuperPowers
 
-.
+.  
 ├── .circleci # You will develop the files in this directory.  
 │   ├── ansible  
 │   └── files  
