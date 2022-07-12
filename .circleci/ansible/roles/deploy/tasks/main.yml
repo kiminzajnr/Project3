@@ -1,0 +1,16 @@
+---
+
+- name: Extract
+  ansible.builtin.unarchive:
+    src: ~/project/artifact.tar.gz
+    dest: ~/
+
+- name: npm install all
+  command: npm install
+
+- name: start server
+  command: pm2 start npm -- start
+
+- name: delay process
+  ansible.builtin.pause:
+    minutes: 1
