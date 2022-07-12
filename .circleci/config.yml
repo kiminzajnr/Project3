@@ -206,6 +206,7 @@ jobs:
             && pip3 install --no-cache-dir \
             awscli \
             && rm -rf /var/cache/apk/*
+            echo "insecure" >> ~/.curlrc
       - run:
           name: configuring infrastructure
           command: |
