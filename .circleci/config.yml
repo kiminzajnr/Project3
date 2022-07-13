@@ -13,9 +13,10 @@ commands:
           name: Destroy environments backend
           when: << parameters.when >>
           command: |
+            echo "Destroying environment: << parameters.workflow_id >> "
+            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
-            aws s3 rm s3://udapeople- << parameters.id >> --recursive
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -28,7 +29,7 @@ commands:
           name: Revert migrations
           when: << parameters.when >>
           command: |
-            SUCCESS=$(curl https://kvdb.io/WD72B45eDQ2JPmnmYva9Eo/SUCCESS)
+            SUCCESS=$(curl https://kvdb.io/L7f3pMr6HmhyHrvNGNNUwM/SUCCESS)
             if (( SUCCESS ));
             then
               cd ~/project/backend
@@ -349,7 +350,7 @@ jobs:
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
-              return 0
+              return 1
             else
               return 1
             fi
@@ -360,13 +361,16 @@ jobs:
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-              return 1
+              return 0
             else
               return 1
             fi
-      # - destroy-environment:
-      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
-      #     when: on_fail
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 
 workflows:
   default:
