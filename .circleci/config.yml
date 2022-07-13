@@ -426,6 +426,32 @@ jobs:
               echo "No old stacks here"
             fi
 
+  node-exporter:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["e5:7a:6e:57:02:73:72:6a:fd:71:39:aa:38:90:0e:da"]
+      - run:
+          name: Install dependencies
+          command: |
+            yum update -y
+            yum install -y  tar gzip
+            curl -sL https://rpm.nodesource.com/setup_13.x | bash -
+            yum install -y nodejs
+            amazon-linux-extras install -y epel
+            yum install -y ansible
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure node_exporter
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook  node-exporter.yml -i inventory.txt
+
+
 workflows:
   default:
     jobs:
@@ -458,3 +484,5 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
+      - node-exporter:
+          requires: [smoke-test]
